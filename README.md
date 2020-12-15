@@ -39,10 +39,9 @@ $$
 $$
 
 
-
 Bringing into the original equation
 $$
-\frac{dy}{dx} = u′(x) = \frac{Q(x)}{e^{∫P(x)dx }}
+u′(x) = \frac{Q(x)}{e^{∫P(x)dx }}
 $$
 
 Integrate $u’(x)$ to get $u(x)$ and bring it in to get the general solution form as: 
