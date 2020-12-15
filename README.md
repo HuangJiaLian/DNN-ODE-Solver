@@ -20,7 +20,7 @@ $$
 \frac{dy}{y} = P(x)dx
 $$
 
-and the solution is
+Integral over the equation and the solution is
 $$
 y = Ce^{-\int P(x)dx}
 $$
