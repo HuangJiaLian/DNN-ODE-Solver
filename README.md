@@ -14,10 +14,20 @@ $$
 \frac{dy}{dx} + P(x)y = 0
 $$
 
+make some  transposition:
+
+$$
+\frac{dy}{y} = P(x)dx
+$$
 
 and the solution is
 $$
 y = Ce^{-\int P(x)dx}
+$$
+
+The inhomogeneous equation is:
+$$
+\frac{dy}{dx} + P(x)y = Q(x)
 $$
 
 let $C=u(x)$, we have
@@ -27,7 +37,7 @@ $$
 
 Bringing into the original equation
 $$
-u′(x) = \frac{Q(x)}{e^{∫P(x)dx }}
+\frac{dy}{dx} = u′(x) = \frac{Q(x)}{e^{∫P(x)dx }}
 $$
 
 Integrate $u’(x)$ to get $u(x)$ and bring it in to get the general solution form as: 
