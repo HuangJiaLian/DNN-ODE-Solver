@@ -31,9 +31,9 @@ u′(x) = \frac{Q(x)}{e^{∫P(x)dx }}
 $$
 
 Integrate $u’(x)$ to get $u(x)$ and bring it in to get the general solution form as: 
-
-y = Ce^-∫P(x)dx + e^-∫P(x)dx∫Q(x)e^∫P(x)dxdx
-
+$$
+y = Ce^{-∫P(x)dx} + e^{-∫P(x)dx}∫Q(x)e^{∫P(x)dx}dx
+$$
 where $C$ is a constat, determined by the initial conditions of the function.  
 
 Ref:
