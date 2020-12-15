@@ -33,7 +33,10 @@ $$
 let $C=u(x)$, we have
 $$
 y = u(x)e^{-\int P(x)dx}
+\frac{dy}{dx} = u′(x)e^{-∫P(x)dx}-u(x)e^{-∫P(x)dx} * Q(x)
 $$
+
+
 
 Bringing into the original equation
 $$
