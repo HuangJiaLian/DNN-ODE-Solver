@@ -4,9 +4,22 @@ import matplotlib.pyplot as plt
 # dT = 0.2*(20 - T)
 # T0 = 5
 
+num_solution_0 = []
 num_solution_1 = []
 num_solution_2 = []
 num_solution_3 = []
+
+for i in range(0,30,2):
+    if i == 0:
+        T0 = 5
+        t = T0
+        num_solution_0.append(T0)
+    else:
+        dT0 = 0.2*(20 - t)
+        T0 = T0 + 2*dT0
+        t = T0
+        num_solution_0.append(T0)
+
 for i in range(30):
     if i == 0:
         T1 = 5
@@ -14,7 +27,7 @@ for i in range(30):
         num_solution_1.append(T1)
     else:
         dT1 = 0.2*(20 - t)
-        T1 = T1 + i*dT1
+        T1 = T1 + dT1
         t = T1
         num_solution_1.append(T1)
 
@@ -27,7 +40,7 @@ for i in range(290):
         x2.append(0.1*i)
     else:
         dT2 = 0.2*(20 - t)
-        T2 = T2 + 0.1*i*dT2
+        T2 = T2 + 0.1*dT2
         t = T2
         num_solution_2.append(T2)
         x2.append(0.1*i)
@@ -39,6 +52,7 @@ for t in range(30):
     num_solution_3.append(T3)
 
 plt.grid()
+plt.plot(range(0,30,2),num_solution_0, label='$\delta t=2$')
 plt.plot(range(30),num_solution_1, label='$\delta t=1$')
 plt.plot(x2,num_solution_2, label='$\delta t=0.1$')
 plt.plot(range(30),num_solution_3, label='analytical solution')
