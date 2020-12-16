@@ -24,6 +24,6 @@ And then get the analytical solution by method of variation of constant:
 $$
 T = -15e^{-0.2x}+20
 $$
-And pictured the image of  numerical solutions(color blue and orange and green) and analytical solution(color red):
+And pictured the image of  numerical solutions(color blue, orange and green) and analytical solution(color red):
 
 ![Alt test](./solution.png)
