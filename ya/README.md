@@ -14,7 +14,7 @@ for i in range(30):
         num_solution_1.append(T1)
     else:
         dT1 = 0.2*(20 - t)
-        T1 = T1 + i*dT1
+        T1 = T1 + dT1
         t = T1
         num_solution_1.append(T1)
        
