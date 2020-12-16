@@ -1,7 +1,7 @@
 # Code for numerical solution and analytical solution of ODE.
 Get the numerical solution by Euler Method：
 
-![Alt test](./Euler Method.png)
+![Alt test](./Euler_Method.png)
 
 Code for Euler Method:
 
