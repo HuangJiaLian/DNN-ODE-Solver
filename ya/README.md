@@ -151,4 +151,4 @@ And pictured the image of  numerical solutions(color blue, orange and green) and
 
 Swish is a new, self-gated activation function discovered by researchers at Google. According to their [paper](https://arxiv.org/abs/1710.05941v1), it performs better than ReLU with a similar level of computational efficiency. In experiments on ImageNet with identical models running ReLU and Swish, the new function achieved top -1 classification accuracy 0.6-0.9% higher.
 
-[references](https://missinglink.ai/guides/neural-network-concepts/7-types-neural-network-activation-functions-right/)
+#### [references](https://missinglink.ai/guides/neural-network-concepts/7-types-neural-network-activation-functions-right/)
