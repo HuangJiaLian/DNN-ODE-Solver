@@ -29,6 +29,7 @@ And pictured the image of  numerical solutions(color blue, orange and green) and
 ![Alt test](./solution.png)
 
 # 2. Code for Handwritten recognition
+There is a problem here. When I used my handwritten numbers to predict, the wrong predicted value appeared. It may be due to writing habits or too few training data sets
 ## Answer for basic questions:
 * How to build DNN using Tensoflow?
 
