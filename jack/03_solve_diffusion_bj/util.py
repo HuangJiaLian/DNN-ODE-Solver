@@ -1,9 +1,8 @@
 import numpy as np 
-import math 
 from numpy.linalg import inv
 
 def get_num_solution(nx,nt,c):
-    pi = math.pi
+    pi = np.pi
     deltax=1./(nx - 1)
     deltat=1./(nt - 1)
     r=deltat/deltax**2
@@ -15,8 +14,6 @@ def get_num_solution(nx,nt,c):
     for i in range(nx):
         u[i,0] = 1
         q[i]=c*deltat*(np.sin(2.0*pi*i*deltax))
-        # q[i]=c*deltat*(np.sin(2.0*pi*i*deltax) + 1)
-    
     p=1/2*np.diag(q)
 
     A = [0]*2
@@ -48,8 +45,3 @@ def get_num_solution(nx,nt,c):
     for i in range(nt-1):
         u[:,i+1] = np.dot(np.dot(inv(D[0]),D[1]),u[:,i])
     return u 
-
-
-
-
-

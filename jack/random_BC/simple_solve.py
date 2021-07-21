@@ -2,8 +2,7 @@
 import numpy as np
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
-
-import os,time,math,signal
+import os,signal
 from pyDOE import lhs 
 import random
 import matplotlib.pyplot as plt 
@@ -18,6 +17,7 @@ NT = 33
 NX = 33
 
 delta_x = 1./NX 
+delta_t = 1./NT
 is_sigint_up = False
 
 alf = 1.
@@ -26,11 +26,12 @@ beta2 = 50.
 beta3 = 50.
 beta4 = 50.
 
-OPTMIZER = tf.train.AdamOptimizer()
+INTRACT = True
+OPTIMIZER = tf.train.AdamOptimizer
 ALL_DATA_NUM = 100000
 
 
-TRIAN_STEP = 6*10000
+TRAIN_STEP = 6*10000
 hlayers_option = [i for i in range(5,6)]
 nodes_option = [i for i in range(21,22)]
 randNumOption = [i for i in range(1424,1425)]
@@ -57,6 +58,7 @@ for j in range(len(layers)):
         # Output
         layers[j] = 1
     else:
+        # Hidden
         layers[j] = num_nodes
 
 # Assistive code 
@@ -64,6 +66,9 @@ LOG_NAME = 'log_'+'h_'+str(num_hlayers)+'n_'+str(num_nodes)+'r_'+str(randEnable)
 if os.path.exists(LOG_NAME):
     print("Same Hyperameter exists. Exitting ...")
     exit()
+else:
+    os.makedirs(LOG_NAME)
+
 MODEPATH = LOG_NAME+'/'
 
 LAST_MODE_PATH = 'last_model/'
@@ -73,8 +78,6 @@ else:
     os.makedirs(LAST_MODE_PATH) 
 
 
-INTRACT = True
-# INTRACT = False
 
 
 #################
@@ -162,7 +165,7 @@ def forward(t,x):
 # PINN
 def net_f(t,x):
     c = 7.
-    pi = math.pi
+    pi = np.pi
     u = forward(t,x)
     u_t = tf.gradients(u,t)[0]
     u_x = tf.gradients(u,x)[0]
@@ -189,53 +192,26 @@ def get_traing_data(all_data, num):
     return t_data, x_data
 
 # t_data
-# data = np.loadtxt(LOAD_FILE)
-# temp = data[:,0]
-# t_data = temp[:,np.newaxis]
-# # print(t_data, t_data.shape)
 temp_ = np.linspace(0,1,NT)
 temp_ = temp_[0:]
 sumv_ = temp_ 
-# print(temp)
 for i in range(NX-1):
     sumv_ = np.append(sumv_,temp_)
 t_data = sumv_.reshape(-1,1)
 
-
-# new_tdata
-temp = np.linspace(0,1,NT)
-temp = temp[1:]
-sumv = temp 
-# print(temp)
-for i in range(NX-1):
-    sumv = np.append(sumv,temp)
-new_tdata = sumv.reshape(-1,1)
-# print(new_tdata,new_tdata.shape)
-
-
 t_small_data = np.linspace(0,1,NT)
 t_small_data = t_small_data[:, np.newaxis]
 t_small_data = t_small_data.reshape([NT,1])
-# print(t_small_data,t_small_data.shape)
 
 
 # x_data
 temp = np.linspace(0,1,NX)
 temp = temp[:,np.newaxis]
 x_data = np.repeat(temp,NT,axis=0)
-# print(x_data, x_data.shape)
-
-# new_xdata
-temp = np.linspace(0,1,NX)
-temp = temp[:,np.newaxis]
-print(temp)
-new_xdata = np.repeat(temp,NT-1,axis=0)
-# print(new_xdata,new_xdata.shape)
 
 x_small_data = np.linspace(0,1,NX)
 x_small_data = x_small_data[:, np.newaxis]
 x_small_data = x_small_data.reshape([NX,1])
-# print(x_small_data,x_small_data.shape)
 
 NT_zeros = np.zeros([NT,1])
 NT_ones = np.ones([NT,1])
@@ -251,43 +227,36 @@ m_delx_data = -1*delx_data
 ########################
 # Define loss function
 ########################
+
 init_NN()
 f_pred = net_f(ts, xs)
 U = forward(ts, xs)
-
-# E = forward(ts_s, t_zeros)
-# F = forward(ts_s, t_ones) 
-# E2 = forward(ts_s, m_delx)
-# F2 = forward(ts_s, one_m_delx)
-# E3 = forward(ts_s, delx)
-# F3 = forward(ts_s, one_p_delx)
 
 E = forward(t_bc,x_bc)
 F = forward(t_bc,x_p_one_bc)
 F2 = forward(t_bc,x_m_one_bc)
 
-G = forward(x_zeros, xs_s) # Maybe G = forward(t_zeros, xs_s)
+G = forward(t_zeros, xs_s)
 
 SSEu = alf*tf.reduce_mean(tf.square(f_pred))
 SSEb1 = beta1*(tf.reduce_mean(tf.square(E-F)))
 SSEb2 = beta2*(tf.reduce_mean(tf.square(G-1)))
 SSEb3 = beta2*(tf.reduce_mean(tf.square(E-F2)))
-# SSEbs1 = beta1*(tf.reduce_mean(tf.square(E2-F2)))
-# SSEbs2 = beta2*(tf.reduce_mean(tf.square(E3-F3)))
+
 
 with tf.name_scope('loss'):
-    # loss = SSEu + SSEb1 + SSEb2 + SSEbs1 + SSEbs2
     loss = SSEu + SSEb1 + SSEb2 + SSEb3
     tf.summary.scalar('loss',loss)
 
 with tf.name_scope('train'):
-    train_step = tf.train.AdamOptimizer().minimize(loss)
+    train_step = OPTIMIZER().minimize(loss)
 
 ########################
 # train NN
 ########################
 init = tf.global_variables_initializer()
 
+# Get numeric solutions
 u_num = util.get_num_solution(NX,NT,7.)
 u_num = u_num.reshape(NX,NT,order='C')
 fig = plt.figure()
@@ -304,40 +273,27 @@ if INTRACT == True:
     plt.ion()
     plt.show()
 
+# Color list is for showing the fixed color of plots
+color_list = ['g', 'r', 'c', 'm', 'y','k', 'plum', 'deepskyblue', 'lightgreen','crimson', 'b']
 
 with tf.Session() as sess:
-    merged = tf.summary.merge_all()
-    writer = tf.summary.FileWriter(LOG_NAME, sess.graph)
     sess.run(init)
     t_bc_data, x_bc_data = get_traing_data(all_data,bcSampleNum)
     t_rand_data, x_rand_data = get_traing_data(all_data,randEnable)
-    if randEnable == 0:
-        train_dic = {
-                        ts:new_tdata, xs:new_xdata, ts_s:t_small_data,
-                        t_zeros: NT_zeros, t_ones: NT_ones,
-                        x_zeros: NX_zeros, xs_s:x_small_data,
-                        x_bc:x_bc_data, t_bc: t_bc_data,
-                        x_p_one_bc:x_bc_data+1, x_m_one_bc:x_bc_data-1
-                    }
-    else:
-        train_dic = {
-                        ts:t_rand_data, xs:x_rand_data, ts_s:t_small_data,
-                        t_zeros: NT_zeros, t_ones: NT_ones,
-                        x_zeros: NX_zeros, xs_s:x_small_data,
-                        x_bc:x_bc_data, t_bc: t_bc_data,
-                        x_p_one_bc:x_bc_data+1,x_m_one_bc:x_bc_data-1
-                    }        
 
-    for i in range(TRIAN_STEP):  
+    train_dic = {
+                    ts: t_rand_data, xs: x_rand_data, ts_s: t_small_data,
+                    t_zeros: NT_zeros, t_ones: NT_ones,
+                    x_zeros: NX_zeros, xs_s: x_small_data,
+                    x_bc: x_bc_data, t_bc: t_bc_data,
+                    x_p_one_bc: x_bc_data+1,x_m_one_bc: x_bc_data-1
+                }
+    
+    for i in range(TRAIN_STEP):  
         sess.run(train_step, feed_dict=train_dic)
         if i % 100 == 0:
             loss_value = sess.run(loss, feed_dict=train_dic)
             print(loss_value)
-            
-            # Tensorboard
-            result = sess.run(merged, feed_dict=train_dic)
-            writer.add_summary(result,i)
-
 
             for j in range(num_layers-1):
                 w_rec[j] = Weights[j].eval()
@@ -353,48 +309,41 @@ with tf.Session() as sess:
                     b_rec[j] = Biases[j].eval()
                     np.savetxt(MODEPATH+'w_rec'+str(j)+'.txt' , w_rec[j])
                     np.savetxt(MODEPATH+'b_rec'+str(j)+'.txt' , b_rec[j])
-                print("Model Saved")
+                print("Model saved")
                 np.savetxt(MODEPATH+'loss.txt',np.reshape(loss_value,[1,1]))
+                plt.savefig(MODEPATH+"result.png")
+                print('Image saved.')
                 break
             
+            # Get the results from the NN
             u_out = sess.run(U, feed_dict={ts:t_data,xs:x_data})
-            # np.savetxt("solver_u_net_out.txt", u_out)
-            # print("net_out_solved.")
             u_out = u_out.reshape(NX,NT,order='C')
+            
+            # Show lines interactively
             for i in range(0,32,5):
                 try:
                     ax.lines.remove(lines[i][0])
                 except Exception:
                     pass
+            counter = 0
             for i in range(0,32,5):
-                lines[i] = ax.plot(x_axis,u_out[:,i], lw=2,label='t='+str(i))
-            plt.title('Loss: ' + str(loss_value) +' R: '+str(randEnable)+' b: '+str(bcSampleNum) + ' ' +str(layers))
+                lines[i] = ax.plot(x_axis,u_out[:,i], lw=2,label='t={:.2f}'.format(i*delta_t), color=color_list[counter])
+                counter += 1
+            plt.title('Loss:{:.5f}'.format(loss_value) + ' R: '+str(randEnable)+' b: '+str(bcSampleNum) + ' ' +str(layers))
             if INTRACT == True:
                 plt.pause(0.0001)
                 plt.legend()
+    
+    
+    # Save model when ending
     plt.savefig(MODEPATH+"result.png")
-    # ############################# 
-    # Display result in tensorboard
-    # ############################# 
-    result_pic_name = MODEPATH+"result.png"
-    file = open(result_pic_name, 'rb')
-    data = file.read()
-    file.close()
-    # Image Processing 
-    image = tf.image.decode_png(data, channels=4)
-    image = tf.expand_dims(image, 0)
-
-    summary_op = tf.summary.image(LOG_NAME, image)
-    summary = sess.run(summary_op)
-    writer.add_summary(summary)    
-
-    # Save model When ending program 
+    print('Image saved.')
     for j in range(num_layers-1):
         w_rec[j] = Weights[j].eval()
         b_rec[j] = Biases[j].eval()
         np.savetxt(MODEPATH+'w_rec'+str(j)+'.txt' , w_rec[j])
         np.savetxt(MODEPATH+'b_rec'+str(j)+'.txt' , b_rec[j])
     np.savetxt(MODEPATH+'loss_value.txt', np.reshape(loss_value,[1,1]))
-    print("Model Saved")     
+    print("Model saved.")     
 
  
